@@ -257,4 +257,39 @@ class TimeValidationServiceTest {
                 .hasMessage("요청한 시간대에 충분한 수업 슬롯이 없습니다.");
     }
 
+    @Test
+    void 단일_등록_90분_제한_실패() {
+        // given
+        LocalDateTime startTime = LocalDateTime.of(2025, 5, 25, 10, 0);
+        LocalDateTime endTime = startTime.plusMinutes(90);
+
+        // when & then
+        assertThatThrownBy(() ->
+                timeValidationService.validateSlotTime(startTime, endTime)
+        ).isInstanceOf(ValidationException.class)
+                .hasMessage("한 번의 등록 요청으로는 최대 60분까지만 등록 가능합니다.");
+    }
+
+    @Test
+    void 연속_슬롯_등록_허용_확인() {
+        // given
+        Tutor tutor = new Tutor("튜터1", "튜터설명1");
+
+        LocalDateTime time1 = LocalDateTime.of(2025, 5, 25, 10, 0);
+        LocalDateTime time2 = LocalDateTime.of(2025, 5, 25, 10, 30);
+        LocalDateTime time3 = LocalDateTime.of(2025, 5, 25, 11, 0);
+        LocalDateTime time4 = LocalDateTime.of(2025, 5, 25, 11, 30);
+
+        //10:00~11:30까지 30분씩 3개 연속
+        SessionSlot slot1 = new SessionSlot(tutor, time1, time2);
+        SessionSlot slot2 = new SessionSlot(tutor, time2, time3);
+        SessionSlot slot3 = new SessionSlot(tutor, time3, time4);
+
+        List<SessionSlot> consecutiveSlots = Arrays.asList(slot1, slot2, slot3);
+
+        // when & then
+        assertThatNoException().isThrownBy(() ->
+                timeValidationService.validateConsecutiveSlots(consecutiveSlots)
+        );
+    }
 }

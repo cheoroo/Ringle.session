@@ -25,6 +25,9 @@ public class TimeValidationService {
         if (minutes < 30 || minutes % 30 != 0) {
             throw new ValidationException("수업 시간은 최소 30분이며 30분 단위여야 합니다.");
         }
+        if (minutes > 60) {
+            throw new ValidationException("한 번의 등록 요청으로는 최대 60분까지만 등록 가능합니다.");
+        }
     }
 
     public void validateNoOverlap(LocalDateTime startTime, LocalDateTime endTime, List<SessionSlot> existingSlots) {
