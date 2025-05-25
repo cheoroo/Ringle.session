@@ -41,4 +41,8 @@ public class SessionSlot {
     public int getDurationMinutes() {
         return (int) java.time.Duration.between(startTime, endTime).toMinutes();
     }
+
+    public void changeStatus(SlotStatus status) {
+        this.status = status;
+    }
 }
