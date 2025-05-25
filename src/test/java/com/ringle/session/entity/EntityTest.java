@@ -1,5 +1,6 @@
 package com.ringle.session.entity;
 
+import com.ringle.session.repository.SessionBookingRepository;
 import com.ringle.session.repository.SessionSlotRepository;
 import com.ringle.session.repository.StudentRepository;
 import com.ringle.session.repository.TutorRepository;
@@ -25,6 +26,10 @@ class EntityTest {
 
     @Autowired
     private SessionSlotRepository sessionSlotRepository;
+
+    @Autowired
+    private SessionBookingRepository sessionBookingRepository;
+
     @Test
     void 학생_엔티티_생성_및_저장_테스트() {
         // given
@@ -119,6 +124,30 @@ class EntityTest {
         // then
         assertThat(slots).hasSize(1);
         assertThat(slots.get(0).getStartTime()).isEqualTo(startTime);
+    }
+
+    @Test
+    void 세션예약_엔티티_생성_및_저장_테스트() {
+        // given
+        Student student = new Student("학생1", "student@example.com");
+        Tutor tutor = new Tutor("튜터1", "튜터설명1");
+        entityManager.persistAndFlush(student);
+        entityManager.persistAndFlush(tutor);
+
+        LocalDateTime startTime = LocalDateTime.of(2025, 5, 25, 10, 0);
+        LocalDateTime endTime = LocalDateTime.of(2025, 5, 25, 11, 0);
+        SessionBooking booking = new SessionBooking(student, tutor, startTime, endTime, 60);
+
+        // when
+        SessionBooking savedBooking = sessionBookingRepository.save(booking);
+
+        // then
+        assertThat(savedBooking.getId()).isNotNull();
+        assertThat(savedBooking.getStudent().getId()).isEqualTo(student.getId());
+        assertThat(savedBooking.getTutor().getId()).isEqualTo(tutor.getId());
+        assertThat(savedBooking.getStartTime()).isEqualTo(startTime);
+        assertThat(savedBooking.getEndTime()).isEqualTo(endTime);
+        assertThat(savedBooking.getDurationMinutes()).isEqualTo(60);
     }
 
 }
