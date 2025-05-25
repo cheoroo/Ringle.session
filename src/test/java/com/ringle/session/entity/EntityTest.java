@@ -74,4 +74,51 @@ class EntityTest {
         assertThat(savedSlot.getStatus()).isEqualTo(SlotStatus.AVAILABLE);
     }
 
+    @Test
+    void 튜터로_세션슬롯_조회_테스트() {
+        // given
+        Tutor tutor = new Tutor("튜터1", "튜터설명1");
+        entityManager.persistAndFlush(tutor);
+
+        LocalDateTime startTime1 = LocalDateTime.of(2025, 5, 25, 10, 0);
+        LocalDateTime endTime1 = LocalDateTime.of(2025, 5, 25, 10, 30);
+        LocalDateTime startTime2 = LocalDateTime.of(2025, 5, 25, 11, 0);
+        LocalDateTime endTime2 = LocalDateTime.of(2025, 5, 25, 11, 30);
+
+        SessionSlot slot1 = new SessionSlot(tutor, startTime1, endTime1);
+        SessionSlot slot2 = new SessionSlot(tutor, startTime2, endTime2);
+
+        sessionSlotRepository.save(slot1);
+        sessionSlotRepository.save(slot2);
+
+        // when
+        var slots = sessionSlotRepository.findByTutorIdAndStatus(tutor.getId(), SlotStatus.AVAILABLE);
+
+        // then
+        assertThat(slots).hasSize(2);
+        assertThat(slots.get(0).getTutor().getId()).isEqualTo(tutor.getId());
+        assertThat(slots.get(1).getTutor().getId()).isEqualTo(tutor.getId());
+    }
+
+    @Test
+    void 기간으로_가능한_슬롯_조회_테스트() {
+        // given
+        Tutor tutor = new Tutor("튜터1", "튜터설명1");
+        entityManager.persistAndFlush(tutor);
+
+        LocalDateTime startTime = LocalDateTime.of(2025, 5, 25, 10, 0);
+        LocalDateTime endTime = LocalDateTime.of(2025, 5, 25, 10, 30);
+        SessionSlot slot = new SessionSlot(tutor, startTime, endTime);
+        sessionSlotRepository.save(slot);
+
+        // when
+        LocalDateTime searchStart = LocalDateTime.of(2025, 5, 25, 0, 0);
+        LocalDateTime searchEnd = LocalDateTime.of(2025, 5, 25, 23, 59);
+        var slots = sessionSlotRepository.findAvailableSlotsBetween(searchStart, searchEnd);
+
+        // then
+        assertThat(slots).hasSize(1);
+        assertThat(slots.get(0).getStartTime()).isEqualTo(startTime);
+    }
+
 }
