@@ -90,4 +90,14 @@ public class TimeValidationService {
         }
     }
 
+    public List<SessionSlot> findRequiredSlots(LocalDateTime requestStart, LocalDateTime requestEnd,
+                                               List<SessionSlot> availableSlots) {
+        return availableSlots.stream()
+                .filter(slot ->
+                        !slot.getStartTime().isBefore(requestStart) &&
+                                !slot.getEndTime().isAfter(requestEnd)
+                )
+                .sorted((s1, s2) -> s1.getStartTime().compareTo(s2.getStartTime()))
+                .toList();
+    }
 }

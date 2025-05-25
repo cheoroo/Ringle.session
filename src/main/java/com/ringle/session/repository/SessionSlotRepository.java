@@ -33,4 +33,14 @@ public interface SessionSlotRepository extends JpaRepository<SessionSlot, Long> 
             @Param("status") SlotStatus status
     );
 
+    @Query("SELECT s FROM SessionSlot s WHERE s.tutor.id = :tutorId " +
+            "AND s.status = 'AVAILABLE' " +
+            "AND s.startTime >= :startTime AND s.endTime <= :endTime " +
+            "ORDER BY s.startTime")
+    List<SessionSlot> findAvailableSlotsByTutorAndTimeRange(
+            @Param("tutorId") Long tutorId,
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime
+    );
+
 }
