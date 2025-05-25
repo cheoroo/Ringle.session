@@ -80,4 +80,14 @@ public class TimeValidationService {
         }
     }
 
+    public boolean canAccommodateBooking(LocalDateTime requestStart, LocalDateTime requestEnd,
+                                         int requestedDuration, List<SessionSlot> availableSlots) {
+        try {
+            validateBookingRequest(requestStart, requestEnd, requestedDuration, availableSlots);
+            return true;
+        } catch (ValidationException e) {
+            return false;
+        }
+    }
+
 }
